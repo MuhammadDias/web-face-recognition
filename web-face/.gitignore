@@ -60,3 +60,7 @@ temp_scan.jpg
 
 # Database
 database.db
+
+# Windows DLLs (jaga-jaga kalau tercecer di root)
+*.dll
+*.lib

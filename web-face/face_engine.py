@@ -10,6 +10,22 @@ Pipeline:
 """
 
 import os
+
+# --- JURUS PAKSA: TUNTUN PYTHON KE FOLDER CUDA ---
+try:
+    # Ini alamat folder CUDA 11.8 kamu yang sudah lengkap isinya
+    cuda_bin_path = r"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin"
+    
+    if os.path.exists(cuda_bin_path):
+        # Perintah ini memaksa Windows meload DLL dari sini
+        os.add_dll_directory(cuda_bin_path)
+        print(f"✅ SUKSES: Path CUDA ditambahkan paksa: {cuda_bin_path}")
+    else:
+        print("❌ ERROR: Folder CUDA 11.8 tidak ditemukan! Cek instalasi.")
+except AttributeError:
+    # os.add_dll_directory hanya ada di Python 3.8+ Windows
+    os.environ['PATH'] = cuda_bin_path + ';' + os.environ['PATH']
+# ------------------------------------------------
 import json
 import sqlite3
 import threading
@@ -95,11 +111,11 @@ def _get_face_app():
             logger.info("Initializing InsightFace app...")
             
             # --- MODIFIKASI: Gunakan GPU (CUDA) ---
-            # Urutan providers penting: Coba CUDA dulu, kalau gagal baru CPU
+            # Prioritaskan CUDAExecutionProvider agar GPU dipakai
             _face_app = FaceAnalysis(
                 name='buffalo_l',
                 root=MODEL_DIR,
-                providers=['CPUExecutionProvider'] 
+                providers=['CUDAExecutionProvider', 'CPUExecutionProvider'] 
             )
             
             # ctx_id = 0 artinya gunakan GPU pertama. (-1 untuk CPU)

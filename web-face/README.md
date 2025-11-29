@@ -1,37 +1,38 @@
 # WEB-FACE - Sistem Deteksi dan Pengenalan Wajah Akurat
 
-Aplikasi web Flask untuk registrasi dan verifikasi wajah pasien rumah sakit. Menggunakan **InsightFace (RetinaFace + ArcFace)** untuk deteksi dan pengenalan wajah dengan akurasi tinggi.
+Aplikasi web Flask untuk registrasi dan verifikasi wajah pasien rumah sakit. Menggunakan **InsightFace (RetinaFace + ArcFace)** untuk deteksi dan pengenalan wajah dengan akurasi tinggi, serta mendukung akselerasi GPU NVIDIA.
 
 ## 🚀 Fitur Utama
 
-- **Deteksi Wajah Akurat**: RetinaFace untuk deteksi real-time
-- **Pengenalan Wajah Modern**: ArcFace embedding (512 dimensi)
-- **Multi-Frame Voting**: Meningkatkan akurasi dengan analisis multiple frame
-- **Face Alignment**: Normalisasi posisi wajah untuk hasil optimal
-- **Auto-Fallback**: Otomatis ke LBPH jika InsightFace tidak tersedia
+- **Deteksi Wajah Akurat**: RetinaFace untuk deteksi real-time yang presisi.
+- **Pengenalan Wajah Modern**: ArcFace embedding (512 dimensi) untuk membedakan identitas.
+- **Multi-Frame Voting**: Meningkatkan akurasi dengan menganalisis multiple frame sebelum mengambil keputusan.
+- **Face Alignment**: Normalisasi posisi wajah (5-point landmarks) untuk hasil optimal.
+- **Auto-Fallback**: Otomatis beralih ke metode ringan (LBPH) jika model berat gagal dimuat.
+- **GPU Acceleration**: Mendukung NVIDIA RTX/GTX untuk performa super cepat (Real-time).
 
 ## 📁 Struktur Direktori
 
-```
+```text
 WEB-FACE/
 ├── app.py                    # Aplikasi Flask utama
 ├── face_engine.py            # Engine deteksi dan pengenalan wajah
-├── requirements.txt          # Dependensi Python
+├── requirements.txt          # Dependensi Python (Versi Stabil)
 ├── database.db               # Database SQLite (auto-generated)
 ├── data/
-│   └── database_wajah/       # Penyimpanan gambar wajah (LBPH)
+│   └── database_wajah/       # Penyimpanan gambar wajah (LBPH/Backup)
 ├── model/
 │   ├── embeddings.db         # Database embedding (InsightFace)
 │   └── buffalo_l/            # Model InsightFace (auto-download)
 ├── templates/
-│   ├── user.html
-│   ├── admin_login.html
-│   └── admin_dashboard.html
+│   ├── user.html             # Interface pengguna (Kiosk)
+│   ├── admin_login.html      # Login Admin
+│   └── admin_dashboard.html  # Dashboard Admin
 ├── static/js/
 │   ├── user.js
 │   └── admin.js
-├── README.md                 # Dokumentasi singkat
-└── README_INSIGHTFACE.md     # Dokumentasi lengkap InsightFace
+├── README.md                 # Dokumentasi utama
+└── README_INSIGHTFACE.md     # Dokumentasi teknis InsightFace
 ```
 
 ## 🛠️ Instalasi Cepat (CPU Only)
@@ -41,95 +42,91 @@ Jika Anda hanya ingin menjalankan tanpa GPU (lebih lambat untuk InsightFace), ik
 # Clone repository
 
 git clone [https://github.com/MuhammadDias/web-face-recognition.git](https://github.com/MuhammadDias/web-face-recognition.git)
-cd web-face
+cd web-face-recognition
 
 # Buat virtual environment
 
+```bash
 python -m venv .venv
+```
 
 # Windows:
 
+```bash
 .venv\Scripts\activate
-
-# Linux/Mac:
-
-source .venv/bin/activate
+```
 
 # Install dependencies
 
+```bash
 pip install -r requirements.txt
+```
 
 # Jalankan aplikasi
 
+```bash
 python app.py
-
-## instalasi GPU support
-
-🛠️ Langkah 1: Install CUDA Toolkit
-
-1. Download CUDA Toolkit 12.x (Disarankan versi 12.6 atau 11.8).
-2. Link: NVIDIA CUDA Toolkit Archive.
-3. Install exe (local) seperti biasa sampai selesai.
-
-Langkah 2: Install Library Python
-Pastikan Anda berada di dalam virtual environment (.venv) dan hapus library versi CPU jika ada.
-
-1. Hapus versi lama/CPU (wajib)
-
-```bash
-pip uninstall onnxruntime onnxruntime-gpu -y
 ```
 
-2. Install versi stabil yang kompatibel
-   Versi 1.18.0 dipilih karena paling stabil dengan cuDNN 8
+## 🚀 Instalasi GPU Support (Wajib untuk Performa Tinggi)
+
+Aplikasi ini dioptimalkan untuk CUDA 11.8. Ikuti langkah ini agar GPU NVIDIA terbaca.
+
+## 📋 Prasyarat Hardware
+
+Laptop/PC dengan GPU NVIDIA (RTX/GTX).
+
+Driver NVIDIA terbaru.
+
+## 🛠️ Langkah 1: Install CUDA Toolkit 11.8
+
+Versi library yang digunakan di project ini membutuhkan CUDA 11.8 (Bukan 12.x).
+
+-Download CUDA Toolkit 11.8.
+-Install exe (local) pilih mode Express.
+
+## 📦 Langkah 2: Lengkapi File DLL (cuDNN & Zlib)
+
+CUDA Installer tidak menyertakan cuDNN dan zlibwapi. Anda harus menambahkannya manual agar Python bisa membacanya.
+
+Download:
+
+-cuDNN v8.x (untuk CUDA 11.x) dari NVIDIA Developer.
+-zlibwapi.dll (x64) dari sumber terpercaya (misal: dll-files.com).
+
+Copy & Paste:
+-Extract cuDNN, ambil semua file di folder bin (seperti cudnn64_8.dll, dll).
+-Ambil file zlibwapi.dll.
+
+Paste semuanya ke dalam folder instalasi CUDA:
+**C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin**
+
+## 🐍 Langkah 3: Setup Python Environment
+
+Pastikan menggunakan versi library yang tepat (sudah diatur di [requirements.txt]).
+
+-Buat & Aktifkan Venv
 
 ```bash
-pip install onnxruntime-gpu==1.18.0
+python -m venv .venv
+.venv\Scripts\activate
 ```
 
-## 📦 Langkah 3: Siapkan File "Obat" (DLL)
+-Install Library (Versi dikunci agar stabil)
 
-Agar Python bisa mendeteksi GPU tanpa error path, kita butuh dua komponen tambahan:
-
-cuDNN v8.x (Untuk CUDA 12.x):
-Download di NVIDIA cuDNN Archive.
-Pilih versi 8.9.7 (jangan versi 9.x agar kompatibel dengan onnxruntime 1.18).
-Download file zip (Windows Local).
-zlibwapi.dll:
-Download file zlibwapi.dll (versi x64).
-Bisa didapat dari dll-files.com atau sumber terpercaya lainnya.
-
-## 🧪 Langkah 4: Penyatuan File (PENTING)
-
-Ini adalah langkah kunci agar GPU terbaca di VS Code/Terminal tanpa ribet setting Environment Variable Windows.
-
-Extract file zip cuDNN yang sudah didownload.
-Masuk ke folder bin hasil extract cuDNN, copy semua file yang berawalan cudnn\*.dll (contoh: cudnn64_8.dll, cudnn_ops_infer64_8.dll, dll).
-Ambil juga file **zlibwapi.dll** yang sudah didownload.
-PASTE semua file DLL tersebut ke dalam folder Scripts virtual environment proyek Anda:
-Lokasi: Project_Folder\.venv\Scripts\ (Paste tepat di sebelah file python.exe)
-
-## ✅ Langkah 5: Verifikasi Instalasi
-
-Jalankan script cek GPU sederhana untuk memastikan instalasi berhasil.
-Buat file cek_gpu.py:
+# Ini akan menginstall onnxruntime-gpu versi 1.16.3 yang kompatibel dengan CUDA 11.8
 
 ```bash
-import onnxruntime as ort
-print(ort.get_available_providers())
+pip install -r requirements.txt
 ```
 
-Jalankan:
-**python cek_gpu.py**
-Output Sukses: Harus muncul CUDAExecutionProvider di urutan awal.
-['TensorrtExecutionProvider', 'CUDAExecutionProvider', 'CPUExecutionProvider']
+## ✅ Langkah 4: Jalankan
 
-## =============Troubleshooting================
+```bash
+python app.py
+```
 
-Jika output masih ['CPUExecutionProvider'] atau ['AzureExecutionProvider'...]:
-Pastikan Anda menginstall onnxruntime-gpu==1.18.0 (bukan 1.23.x).
-Pastikan file zlibwapi.dll sudah ada di folder .venv\Scripts.
-Pastikan file cudnn64_8.dll sudah ada di folder .venv\Scripts.
+Jika sukses, log terminal akan menampilkan: INFO:FaceEngine:InsightFace app initialized successfully with GPU
 
 ## 🔗 Akses Aplikasi
 
@@ -141,9 +138,14 @@ Pastikan file cudnn64_8.dll sudah ada di folder .venv\Scripts.
 ## 📊 Arsitektur Pipeline
 
 ```
-Input Webcam → Deteksi (RetinaFace) → Alignment →
-Extract Embedding (ArcFace) → Normalize (L2) →
-Compare (Cosine Similarity) → Multi-Frame Voting → Output
+graph LR
+A[Input Webcam] --> B[Deteksi RetinaFace]
+B --> C[Alignment & Preprocess]
+C --> D[Extract Embedding ArcFace]
+D --> E[Normalize L2]
+E --> F[Compare Cosine Similarity]
+F --> G[Multi-Frame Voting]
+G --> H[Output Hasil]
 ```
 
 ## ⚙️ Konfigurasi
@@ -173,7 +175,17 @@ python test_recognition_workflow.py
 
 ## 📝 Changelog
 
-### v2.0.0 (Current)
+## v2.1.0 (Current)
+
+Fix: Kompatibilitas penuh dengan CUDA 11.8 & cuDNN 8.
+
+Fix: Menyelesaikan konflik versi NumPy 2.0 dan OpenCV.
+
+Feat: Dashboard Admin menampilkan status real-time penggunaan Hardware (GPU/CPU).
+
+Feat: Dukungan Dark Mode pada UI User dan Admin.
+
+### v2.0.0
 
 - Migrasi ke InsightFace (RetinaFace + ArcFace)
 - Face alignment dengan 5-point landmarks

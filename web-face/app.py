@@ -423,27 +423,30 @@ def admin_dashboard():
     # Get data counts
     data_count = len([f for f in os.listdir(DATA_DIR) if f.lower().endswith(".jpg")])
     
-    # Get engine status
+    # Get engine status (Default)
     engine_info = {
         'name': FACE_ENGINE.upper(),
         'model_loaded': model_loaded
     }
     
-    # --- LOGIKA BARU: Cek Hardware Status (JUJUR) ---
-    hardware_status = "CPU (Optimization)"
-    hardware_color = "yellow"
+    # Default Hardware Status
+    hardware_status = "CPU"
+    hardware_color = "gray"
     
     if FACE_ENGINE == "insightface":
-        # Kita cek langsung ke object face_app yang sedang jalan
-        # Ini cara "Hacky" tapi Akurat 100%
         try:
-            # Akses variabel _face_app di dalam modul face_engine
+            # 1. CEK STATUS MODEL (Wajib update ini dulu)
+            # Kita panggil ini terlepas dari GPU atau CPU
+            status = face_engine.get_engine_status()
+            engine_info['model_loaded'] = status.get('insightface_available', False)
+            engine_info['embeddings_count'] = status.get('total_embeddings', 0)
+
+            # 2. CEK HARDWARE (GPU/CPU)
             app_instance = face_engine._face_app
             is_gpu_active = False
 
             if app_instance:
                 # Cek provider yang dipakai oleh model 'detection'
-                # Jika deteksi pakai CUDA, berarti semuanya pakai CUDA
                 if hasattr(app_instance, 'models') and 'detection' in app_instance.models:
                     active_providers = app_instance.models['detection'].session.get_providers()
                     if 'CUDAExecutionProvider' in active_providers:
@@ -453,18 +456,14 @@ def admin_dashboard():
                 hardware_status = "GPU (NVIDIA RTX)"
                 hardware_color = "green"
             else:
-                # InsightFace jalan tapi tidak pakai CUDA (Fallback CPU)
                 hardware_status = "CPU (Optimization)"
                 hardware_color = "yellow"
-                
-                # Cek tambahan: Status Model Loaded atau Belum
-                status = face_engine.get_engine_status()
-                engine_info['embeddings_count'] = status.get('total_embeddings', 0)
-                engine_info['model_loaded'] = status.get('insightface_available', False)
 
         except Exception as e:
-            logger.error(f"Error checking hardware status: {e}")
-            pass
+            logger.error(f"Error checking status: {e}")
+            # Fallback status jika error
+            hardware_status = "Error Check"
+            hardware_color = "red"
 
     elif FACE_ENGINE == "lbph":
         hardware_status = "CPU (OpenCV)"
