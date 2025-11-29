@@ -1,12 +1,24 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="dark">
   <head>
     <meta charset="UTF-8" />
     <title>Admin Dashboard - RS Sang Surya</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-      tailwind.config = { theme: { extend: { colors: { primary: { 100: '#ccfbf1', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e', 900: '#134e4a' }, bgdark: '#0d0f10', card: '#181b1f', border: '#2a2f34' } } } };
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary: { 100: '#ccfbf1', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e', 900: '#134e4a' },
+              bgdark: '#0d0f10',
+              card: '#181b1f',
+              border: '#2a2f34',
+            },
+          },
+        },
+      };
     </script>
     <style>
       html {
@@ -28,13 +40,27 @@
       }
     </style>
   </head>
-  <body class="bg-bgdark text-gray-200 min-h-screen">
-    <header class="bg-card border-b border-border">
+  <body class="bg-gray-100 text-gray-800 dark:bg-bgdark dark:text-gray-200 min-h-screen transition-colors duration-300">
+    <header class="bg-white dark:bg-card border-b border-gray-200 dark:border-border transition-colors">
       <div class="container mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
-        <h1 class="text-xl font-bold text-primary-500">Admin Dashboard</h1>
+        <h1 class="text-xl font-bold text-primary-600 dark:text-primary-500">Admin Dashboard</h1>
         <div class="flex items-center gap-4">
-          <span class="text-sm">Halo, <strong class="text-primary-500">{{ admin_name }}</strong></span>
-          <a href="{{ url_for('admin_logout') }}" class="py-1 px-3 bg-red-600 hover:bg-red-700 rounded-md text-sm font-medium text-white">Logout</a>
+          <button
+            id="theme-toggle"
+            class="p-2 rounded-lg bg-gray-100 dark:bg-border text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600 transition-colors"
+          >
+            <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+            <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fill-rule="evenodd"
+                d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+                clip-rule="evenodd"
+              ></path>
+            </svg>
+          </button>
+
+          <span class="text-sm hidden sm:inline">Halo, <strong class="text-primary-600 dark:text-primary-500">{{ admin_name }}</strong></span>
+          <a href="{{ url_for('admin_logout') }}" class="py-1.5 px-3 bg-red-600 hover:bg-red-700 rounded-md text-sm font-medium text-white transition-colors">Logout</a>
         </div>
       </div>
     </header>
@@ -43,7 +69,9 @@
       {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %}
       <div class="space-y-2 mb-6">
         {% for category, message in messages %}
-        <div class="px-4 py-3 rounded-md text-sm {% if category == 'success' %}bg-green-700 text-green-100 {% elif category == 'danger' %}bg-red-700 text-red-100 {% else %}bg-card text-gray-200 border border-border{% endif %}">
+        <div
+          class="px-4 py-3 rounded-md text-sm border {% if category == 'success' %}bg-green-100 border-green-200 text-green-800 dark:bg-green-700 dark:border-green-600 dark:text-green-100 {% elif category == 'danger' %}bg-red-100 border-red-200 text-red-800 dark:bg-red-700 dark:border-red-600 dark:text-red-100 {% else %}bg-white border-gray-200 text-gray-800 dark:bg-card dark:border-border dark:text-gray-200{% endif %}"
+        >
           {{ message }}
         </div>
         {% endfor %}
@@ -51,57 +79,57 @@
       {% endif %} {% endwith %}
 
       <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-10">
-        <div class="bg-card p-5 rounded-xl shadow border border-border">
-          <h3 class="text-sm font-medium text-gray-400">Model</h3>
-          <p class="text-2xl font-bold text-primary-500 mt-2">{{ model_name }}</p>
-          <p class="text-xs mt-1">Status: {% if model_loaded %}<span class="text-green-400">Loaded</span>{% else %}<span class="text-red-400">Belum</span>{% endif %}</p>
+        <div class="bg-white dark:bg-card p-5 rounded-xl shadow border border-gray-200 dark:border-border transition-colors">
+          <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Model</h3>
+          <p class="text-2xl font-bold text-primary-600 dark:text-primary-500 mt-2">{{ model_name }}</p>
+          <p class="text-xs mt-1">Status: {% if model_loaded %}<span class="text-green-600 dark:text-green-400 font-medium">Loaded</span>{% else %}<span class="text-red-600 dark:text-red-400 font-medium">Belum</span>{% endif %}</p>
         </div>
 
-        <div class="bg-card p-5 rounded-xl shadow border border-border relative overflow-hidden">
-          <h3 class="text-sm font-medium text-gray-400">Hardware</h3>
+        <div class="bg-white dark:bg-card p-5 rounded-xl shadow border border-gray-200 dark:border-border relative overflow-hidden transition-colors">
+          <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Hardware</h3>
           <div class="flex items-center gap-2 mt-2">
             <span class="w-3 h-3 rounded-full {% if hardware_color == 'green' %}bg-green-500 animate-pulse shadow-[0_0_10px_#22c55e]{% elif hardware_color == 'yellow' %}bg-yellow-500{% else %}bg-gray-500{% endif %}"></span>
-            <p class="text-xl font-bold text-gray-200">{{ hardware_status }}</p>
+            <p class="text-xl font-bold text-gray-800 dark:text-gray-200">{{ hardware_status }}</p>
           </div>
           <p class="text-xs text-gray-500 mt-1">Provider aktif saat ini</p>
-          <svg class="absolute -bottom-4 -right-4 w-20 h-20 text-gray-800 opacity-20 transform rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="absolute -bottom-4 -right-4 w-20 h-20 text-gray-200 dark:text-gray-800 opacity-50 dark:opacity-20 transform rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
           </svg>
         </div>
 
-        <div class="bg-card p-5 rounded-xl shadow border border-border">
-          <h3 class="text-sm font-medium text-gray-400">Total Pasien</h3>
-          <p class="text-2xl font-bold text-primary-500 mt-2">{{ total_patients }}</p>
+        <div class="bg-white dark:bg-card p-5 rounded-xl shadow border border-gray-200 dark:border-border transition-colors">
+          <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Pasien</h3>
+          <p class="text-2xl font-bold text-primary-600 dark:text-primary-500 mt-2">{{ total_patients }}</p>
           <p class="text-xs text-gray-500 mt-1">Dataset: {{ foto_count }} foto</p>
         </div>
 
-        <div class="bg-card p-5 rounded-xl shadow border border-border">
-          <h3 class="text-sm font-medium text-gray-400">Aksi Model</h3>
+        <div class="bg-white dark:bg-card p-5 rounded-xl shadow border border-gray-200 dark:border-border transition-colors">
+          <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Aksi Model</h3>
           <form method="post" action="{{ url_for('admin_retrain') }}" class="mt-3">
             <button class="w-full py-2 bg-primary-600 hover:bg-primary-700 rounded-md text-sm font-medium text-white transition-colors">Retrain Model</button>
           </form>
           <p class="text-xs text-gray-500 mt-2">Update database wajah.</p>
         </div>
 
-        <div class="bg-card p-5 rounded-xl shadow border border-border">
-          <h3 class="text-sm font-medium text-gray-400">Info System</h3>
-          <p class="text-xs text-gray-400 mt-2 leading-relaxed">
+        <div class="bg-white dark:bg-card p-5 rounded-xl shadow border border-gray-200 dark:border-border transition-colors">
+          <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Info System</h3>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">
             Format file: <code>nik.index.jpg</code><br />
-            Engine: <span class="text-primary-400 font-mono">{{ face_engine|upper }}</span>
+            Engine: <span class="text-primary-600 dark:text-primary-400 font-mono">{{ face_engine|upper }}</span>
           </p>
         </div>
       </section>
 
       <section class="mb-10">
-        <h2 class="text-2xl font-bold text-primary-500 mb-4">Manajemen Antrian</h2>
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-primary-500 mb-4">Manajemen Antrian</h2>
         <div id="queue-cards" class="grid grid-cols-1 md:grid-cols-3 gap-6">
           {% for q in queues %}
-          <div class="bg-card p-6 rounded-xl border border-border">
-            <h3 class="text-lg font-bold text-gray-200">{{ q['poli_name'] }}</h3>
-            <p class="text-5xl font-extrabold text-primary-600 my-4">{{ q['next_number'] }}</p>
+          <div class="bg-white dark:bg-card p-6 rounded-xl border border-gray-200 dark:border-border shadow-sm transition-colors">
+            <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200">{{ q['poli_name'] }}</h3>
+            <p class="text-5xl font-extrabold text-primary-600 dark:text-primary-600 my-4">{{ q['next_number'] }}</p>
             <div class="flex gap-4">
-              <button data-poli="{{ q['poli_name'] }}" class="btn-set w-full py-2 px-4 rounded-md text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700">Set</button>
-              <button data-poli="{{ q['poli_name'] }}" class="btn-reset w-full py-2 px-4 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700">Reset</button>
+              <button data-poli="{{ q['poli_name'] }}" class="btn-set w-full py-2 px-4 rounded-md text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 transition-colors">Set</button>
+              <button data-poli="{{ q['poli_name'] }}" class="btn-reset w-full py-2 px-4 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition-colors">Reset</button>
             </div>
           </div>
           {% endfor %}
@@ -109,22 +137,23 @@
       </section>
 
       <section>
-        <h2 class="text-2xl font-bold text-primary-500 mb-4">Data Pasien</h2>
-        <div class="bg-card p-6 rounded-xl border border-border">
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-primary-500 mb-4">Data Pasien</h2>
+        <div class="bg-white dark:bg-card p-6 rounded-xl border border-gray-200 dark:border-border shadow-sm transition-colors">
           <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
             <div class="flex items-center gap-2">
-              <label class="text-sm font-medium text-gray-400">Tampilkan:</label>
-              <select id="show-rows" class="px-3 py-1.5 bg-bgdark border border-border rounded-md text-sm text-gray-200">
+              <label class="text-sm font-medium text-gray-600 dark:text-gray-400">Tampilkan:</label>
+              <select id="show-rows" class="px-3 py-1.5 bg-gray-50 dark:bg-bgdark border border-gray-300 dark:border-border rounded-md text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-primary-500">
                 <option value="10" selected>10</option>
                 <option value="50">50</option>
                 <option value="999999">Semua</option>
               </select>
             </div>
-            <div class="text-sm text-gray-400" id="page-info">Menampilkan 0-0 dari 0</div>
+            <div class="text-sm text-gray-500 dark:text-gray-400" id="page-info">Menampilkan 0-0 dari 0</div>
           </div>
+
           <div class="overflow-x-auto">
             <table class="w-full min-w-max text-left">
-              <thead class="border-b border-border text-gray-400 text-xs uppercase tracking-wider">
+              <thead class="border-b border-gray-200 dark:border-border text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
                 <tr>
                   <th class="py-3 px-4 sortable active" data-sort="nik">NIK <span class="arrow" id="arrow-nik">▲</span></th>
                   <th class="py-3 px-4 sortable" data-sort="name">Nama <span class="arrow" id="arrow-name"></span></th>
@@ -133,52 +162,110 @@
                   <th class="py-3 px-4">Aksi</th>
                 </tr>
               </thead>
-              <tbody id="tabel-pasien-body"></tbody>
+              <tbody id="tabel-pasien-body" class="divide-y divide-gray-100 dark:divide-border"></tbody>
             </table>
           </div>
+
           <div class="flex justify-between items-center mt-4">
-            <button id="prev-page" class="py-2 px-4 rounded-lg text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:bg-gray-600 disabled:cursor-not-allowed">&larr; Sebelumnya</button>
-            <span id="page-number" class="text-sm font-medium text-gray-300">Halaman 1</span>
-            <button id="next-page" class="py-2 px-4 rounded-lg text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:bg-gray-600 disabled:cursor-not-allowed">Berikutnya &rarr;</button>
+            <button id="prev-page" class="py-2 px-4 rounded-lg text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors">
+              &larr; Sebelumnya
+            </button>
+            <span id="page-number" class="text-sm font-medium text-gray-600 dark:text-gray-300">Halaman 1</span>
+            <button id="next-page" class="py-2 px-4 rounded-lg text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors">
+              Berikutnya &rarr;
+            </button>
           </div>
         </div>
       </section>
     </main>
 
-    <!-- Modal Edit Pasien -->
     <div id="modal-edit" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex items-center justify-center p-4">
-      <div class="bg-card border border-border rounded-xl w-full max-w-md p-6">
-        <h3 class="text-xl font-bold text-primary-500 mb-4">Edit Data Pasien</h3>
+      <div class="bg-white dark:bg-card border border-gray-200 dark:border-border rounded-xl w-full max-w-md p-6 shadow-2xl transition-colors">
+        <h3 class="text-xl font-bold text-primary-600 dark:text-primary-500 mb-4">Edit Data Pasien</h3>
         <form id="form-edit-pasien" class="space-y-4">
           <input type="hidden" id="edit-old-nik" />
           <div>
-            <label class="block text-sm text-gray-400">NIK (16 digit)</label>
-            <input id="edit-nik" maxlength="16" type="text" class="mt-1 w-full bg-bgdark border border-border rounded-md px-3 py-2 text-gray-200" required />
+            <label class="block text-sm text-gray-600 dark:text-gray-400">NIK (16 digit)</label>
+            <input
+              id="edit-nik"
+              maxlength="16"
+              type="text"
+              class="mt-1 w-full bg-gray-50 dark:bg-bgdark border border-gray-300 dark:border-border rounded-md px-3 py-2 text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              required
+            />
           </div>
           <div>
-            <label class="block text-sm text-gray-400">Nama (tidak bisa diubah)</label>
-            <input id="edit-nama" type="text" class="mt-1 w-full bg-gray-700 border border-border rounded-md px-3 py-2 text-gray-400 cursor-not-allowed" disabled readonly />
+            <label class="block text-sm text-gray-600 dark:text-gray-400">Nama (tidak bisa diubah)</label>
+            <input id="edit-nama" type="text" class="mt-1 w-full bg-gray-200 dark:bg-gray-700 border border-gray-300 dark:border-border rounded-md px-3 py-2 text-gray-500 dark:text-gray-400 cursor-not-allowed" disabled readonly />
           </div>
           <div>
-            <label class="block text-sm text-gray-400">Tanggal Lahir</label>
-            <input id="edit-dob" type="date" min="2000-01-01" class="mt-1 w-full bg-bgdark border border-border rounded-md px-3 py-2 text-gray-200" required />
+            <label class="block text-sm text-gray-600 dark:text-gray-400">Tanggal Lahir</label>
+            <input
+              id="edit-dob"
+              type="date"
+              min="2000-01-01"
+              class="mt-1 w-full bg-gray-50 dark:bg-bgdark border border-gray-300 dark:border-border rounded-md px-3 py-2 text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-primary-500 [color-scheme:light] dark:[color-scheme:dark]"
+              required
+            />
           </div>
           <div>
-            <label class="block text-sm text-gray-400">Alamat</label>
-            <textarea id="edit-alamat" rows="3" class="mt-1 w-full bg-bgdark border border-border rounded-md px-3 py-2 text-gray-200" required></textarea>
+            <label class="block text-sm text-gray-600 dark:text-gray-400">Alamat</label>
+            <textarea
+              id="edit-alamat"
+              rows="3"
+              class="mt-1 w-full bg-gray-50 dark:bg-bgdark border border-gray-300 dark:border-border rounded-md px-3 py-2 text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              required
+            ></textarea>
           </div>
           <div class="flex gap-3 pt-2">
-            <button type="submit" class="flex-1 py-2 bg-primary-600 hover:bg-primary-700 rounded-md text-white text-sm font-medium">Simpan</button>
-            <button type="button" id="btn-edit-cancel" class="flex-1 py-2 bg-gray-600 hover:bg-gray-700 rounded-md text-white text-sm font-medium">Batal</button>
+            <button type="submit" class="flex-1 py-2 bg-primary-600 hover:bg-primary-700 rounded-md text-white text-sm font-medium transition-colors">Simpan</button>
+            <button type="button" id="btn-edit-cancel" class="flex-1 py-2 bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 rounded-md text-white text-sm font-medium transition-colors">Batal</button>
           </div>
-          <p class="text-xs text-gray-400 mt-2">Nama tidak bisa diubah. Ubah NIK akan memindahkan semua file dan retrain model otomatis.</p>
+          <p class="text-xs text-gray-500 mt-2">Nama tidak bisa diubah. Ubah NIK akan memindahkan semua file dan retrain model otomatis.</p>
         </form>
       </div>
     </div>
 
     <script src="/static/js/admin.js"></script>
+
     <script>
       (function () {
+        // Toggle Logic
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const darkIcon = document.getElementById('theme-toggle-dark-icon');
+        const lightIcon = document.getElementById('theme-toggle-light-icon');
+
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+          lightIcon.classList.remove('hidden');
+        } else {
+          document.documentElement.classList.remove('dark');
+          darkIcon.classList.remove('hidden');
+        }
+
+        themeToggleBtn.addEventListener('click', function () {
+          darkIcon.classList.toggle('hidden');
+          lightIcon.classList.toggle('hidden');
+          if (localStorage.getItem('color-theme')) {
+            if (localStorage.getItem('color-theme') === 'light') {
+              document.documentElement.classList.add('dark');
+              localStorage.setItem('color-theme', 'dark');
+            } else {
+              document.documentElement.classList.remove('dark');
+              localStorage.setItem('color-theme', 'light');
+            }
+          } else {
+            if (document.documentElement.classList.contains('dark')) {
+              document.documentElement.classList.remove('dark');
+              localStorage.setItem('color-theme', 'light');
+            } else {
+              document.documentElement.classList.add('dark');
+              localStorage.setItem('color-theme', 'dark');
+            }
+          }
+        });
+
+        // Queue Logic (Dari script lama)
         const cards = document.getElementById('queue-cards');
         if (!cards) return;
         cards.addEventListener('click', async (e) => {

@@ -61,6 +61,31 @@ _embeddings_db = {}  # {nik: [embeddings]}
 _embeddings_loaded = False
 
 
+#def _get_face_app():
+#    """Lazy load InsightFace app to avoid startup delay"""
+#    global _face_app
+#    if _face_app is None:
+#        try:
+#            from insightface.app import FaceAnalysis
+#            logger.info("Initializing InsightFace app...")
+#            _face_app = FaceAnalysis(
+#                name='buffalo_l',  # Uses RetinaFace + ArcFace
+#                root=MODEL_DIR,
+#                providers=['CPUExecutionProvider']  # Use CPU for compatibility
+#            )
+#            # ctx_id=-1 -> CPU; det_size wider for better detection
+#            _face_app.prepare(ctx_id=-1, det_size=(640, 640))
+#            # Sanity check: ensure recognition head exists
+#            test_attr = hasattr(_face_app, 'models') or True  # avoid strict version coupling
+#            logger.info("InsightFace app initialized successfully")
+#        except ImportError as e:
+#           logger.warning(f"InsightFace not available in this Python environment: {e}")
+#            _face_app = None
+#       except Exception as e:
+#            logger.error(f"Failed to initialize InsightFace: {e}")
+#            _face_app = None
+#   return _face_app
+
 def _get_face_app():
     """Lazy load InsightFace app to avoid startup delay"""
     global _face_app
@@ -68,16 +93,21 @@ def _get_face_app():
         try:
             from insightface.app import FaceAnalysis
             logger.info("Initializing InsightFace app...")
+            
+            # --- MODIFIKASI: Gunakan GPU (CUDA) ---
+            # Urutan providers penting: Coba CUDA dulu, kalau gagal baru CPU
             _face_app = FaceAnalysis(
-                name='buffalo_l',  # Uses RetinaFace + ArcFace
+                name='buffalo_l',
                 root=MODEL_DIR,
-                providers=['CPUExecutionProvider']  # Use CPU for compatibility
+                providers=['CPUExecutionProvider'] 
             )
-            # ctx_id=-1 -> CPU; det_size wider for better detection
-            _face_app.prepare(ctx_id=-1, det_size=(640, 640))
+            
+            # ctx_id = 0 artinya gunakan GPU pertama. (-1 untuk CPU)
+            _face_app.prepare(ctx_id=0, det_size=(640, 640))
+            
             # Sanity check: ensure recognition head exists
-            test_attr = hasattr(_face_app, 'models') or True  # avoid strict version coupling
-            logger.info("InsightFace app initialized successfully")
+            test_attr = hasattr(_face_app, 'models') or True
+            logger.info("InsightFace app initialized successfully with GPU")
         except ImportError as e:
             logger.warning(f"InsightFace not available in this Python environment: {e}")
             _face_app = None
@@ -85,7 +115,6 @@ def _get_face_app():
             logger.error(f"Failed to initialize InsightFace: {e}")
             _face_app = None
     return _face_app
-
 
 def _normalize_embedding(embedding: np.ndarray) -> np.ndarray:
     """L2 normalize embedding vector"""

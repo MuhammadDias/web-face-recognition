@@ -39,6 +39,7 @@ web-face/
 ## 🛠️ Instalasi
 
 ### Persyaratan Sistem
+
 - Python 3.8+
 - pip
 - Webcam (untuk registrasi dan verifikasi)
@@ -46,12 +47,14 @@ web-face/
 ### Langkah Instalasi
 
 1. **Clone repository**
+
 ```bash
-git clone https://github.com/lustresense/web-face.git
+git clone https://github.com/MuhammadDias/web-face-recognition.git
 cd web-face
 ```
 
 2. **Buat virtual environment**
+
 ```bash
 python -m venv venv
 
@@ -63,16 +66,19 @@ venv\Scripts\activate
 ```
 
 3. **Install dependencies**
+
 ```bash
 pip install -r requirements.txt
 ```
 
 4. **Jalankan aplikasi**
+
 ```bash
 python app.py
 ```
 
 5. **Akses aplikasi**
+
 - User: http://127.0.0.1:5000/
 - Admin: http://127.0.0.1:5000/admin/login
   - Username: `admin`
@@ -82,19 +88,20 @@ python app.py
 
 ### Environment Variables
 
-| Variable | Default | Deskripsi |
-|----------|---------|-----------|
-| `USE_INSIGHTFACE` | `1` | Set ke `0` untuk paksa gunakan LBPH |
-| `DETECTION_THRESHOLD` | `0.5` | Threshold deteksi wajah (0-1) |
-| `RECOGNITION_THRESHOLD` | `0.4` | Threshold similarity untuk match (0-1) |
-| `MIN_FACE_SIZE` | `60` | Ukuran minimum wajah dalam pixel |
-| `VOTE_MIN_SHARE` | `0.35` | Minimum vote share untuk recognize |
-| `MIN_VALID_FRAMES` | `2` | Minimum frame valid untuk recognize |
-| `SECRET_KEY` | `dev-secret-key` | Secret key Flask |
-| `ADMIN_USERNAME` | `admin` | Username admin |
-| `ADMIN_PASSWORD_PLAIN` | `Cakra@123` | Password admin |
+| Variable                | Default          | Deskripsi                              |
+| ----------------------- | ---------------- | -------------------------------------- |
+| `USE_INSIGHTFACE`       | `1`              | Set ke `0` untuk paksa gunakan LBPH    |
+| `DETECTION_THRESHOLD`   | `0.5`            | Threshold deteksi wajah (0-1)          |
+| `RECOGNITION_THRESHOLD` | `0.4`            | Threshold similarity untuk match (0-1) |
+| `MIN_FACE_SIZE`         | `60`             | Ukuran minimum wajah dalam pixel       |
+| `VOTE_MIN_SHARE`        | `0.35`           | Minimum vote share untuk recognize     |
+| `MIN_VALID_FRAMES`      | `2`              | Minimum frame valid untuk recognize    |
+| `SECRET_KEY`            | `dev-secret-key` | Secret key Flask                       |
+| `ADMIN_USERNAME`        | `admin`          | Username admin                         |
+| `ADMIN_PASSWORD_PLAIN`  | `Cakra@123`      | Password admin                         |
 
 ### Contoh penggunaan:
+
 ```bash
 export USE_INSIGHTFACE=1
 export RECOGNITION_THRESHOLD=0.45
@@ -104,15 +111,17 @@ python app.py
 ## 🔄 Alur Kerja (Pipeline)
 
 ### 1. Registrasi Wajah
+
 ```
-Input Webcam → Deteksi Wajah (RetinaFace) → Face Alignment → 
+Input Webcam → Deteksi Wajah (RetinaFace) → Face Alignment →
 Extract Embedding (ArcFace) → Normalize (L2) → Simpan ke Database
 ```
 
 ### 2. Verifikasi/Pengenalan
+
 ```
 Input Webcam → Deteksi Wajah (RetinaFace) → Face Alignment →
-Extract Embedding (ArcFace) → Normalize (L2) → 
+Extract Embedding (ArcFace) → Normalize (L2) →
 Compare dengan Database (Cosine Similarity) → Multi-Frame Voting → Output Identitas
 ```
 
@@ -174,18 +183,20 @@ Compare dengan Database (Cosine Similarity) → Multi-Frame Voting → Output Id
 ## 🎯 Threshold Optimal
 
 ### InsightFace (ArcFace)
-| Skenario | Threshold | Deskripsi |
-|----------|-----------|-----------|
-| High Security | 0.50 | Sangat ketat, FAR rendah |
-| **Balanced (Default)** | **0.40** | Seimbang antara akurasi dan usability |
-| High Usability | 0.35 | Lebih toleran, FRR rendah |
+
+| Skenario               | Threshold | Deskripsi                             |
+| ---------------------- | --------- | ------------------------------------- |
+| High Security          | 0.50      | Sangat ketat, FAR rendah              |
+| **Balanced (Default)** | **0.40**  | Seimbang antara akurasi dan usability |
+| High Usability         | 0.35      | Lebih toleran, FRR rendah             |
 
 ### LBPH (Fallback)
-| Skenario | Threshold | Deskripsi |
-|----------|-----------|-----------|
-| High Security | 80 | Sangat ketat |
-| **Balanced (Default)** | **120** | Seimbang |
-| High Usability | 150 | Lebih toleran |
+
+| Skenario               | Threshold | Deskripsi     |
+| ---------------------- | --------- | ------------- |
+| High Security          | 80        | Sangat ketat  |
+| **Balanced (Default)** | **120**   | Seimbang      |
+| High Usability         | 150       | Lebih toleran |
 
 ## 📈 Tips Meningkatkan Akurasi
 
@@ -199,16 +210,19 @@ Compare dengan Database (Cosine Similarity) → Multi-Frame Voting → Output Id
 ## 🧪 Testing
 
 ### Test Basic
+
 ```bash
 python test_basic.py
 ```
 
 ### Test Recognition Workflow
+
 ```bash
 python test_recognition_workflow.py
 ```
 
 ### Test dengan Curl
+
 ```bash
 # Register
 curl -X POST http://localhost:5000/api/register \
@@ -230,9 +244,11 @@ curl http://localhost:5000/api/engine/status
 ## 📚 API Reference
 
 ### POST /api/register
+
 Registrasi pasien baru dengan foto wajah.
 
 **Request (multipart/form-data):**
+
 - `nik`: NIK 16 digit (required)
 - `name`: Nama lengkap (required)
 - `dob`: Tanggal lahir YYYY-MM-DD (required)
@@ -240,6 +256,7 @@ Registrasi pasien baru dengan foto wajah.
 - `frames[]`: File gambar wajah (multiple)
 
 **Response:**
+
 ```json
 {
   "ok": true,
@@ -248,12 +265,15 @@ Registrasi pasien baru dengan foto wajah.
 ```
 
 ### POST /api/recognize
+
 Verifikasi wajah dari frame.
 
 **Request (multipart/form-data):**
+
 - `frames[]`: File gambar wajah (multiple)
 
 **Response:**
+
 ```json
 {
   "ok": true,
@@ -270,9 +290,11 @@ Verifikasi wajah dari frame.
 ```
 
 ### GET /api/engine/status
+
 Mendapatkan status engine pengenalan wajah.
 
 **Response:**
+
 ```json
 {
   "ok": true,
@@ -299,6 +321,7 @@ Mendapatkan status engine pengenalan wajah.
 ## 📝 Changelog
 
 ### v2.0.0 (Current)
+
 - ✅ Migrasi dari LBPH ke InsightFace (RetinaFace + ArcFace)
 - ✅ Face alignment dengan 5-point landmarks
 - ✅ L2 normalization untuk embedding
@@ -310,6 +333,7 @@ Mendapatkan status engine pengenalan wajah.
 - ✅ API untuk engine status
 
 ### v1.0.0 (Legacy)
+
 - Haar Cascade untuk deteksi
 - LBPH untuk pengenalan
 - Basic voting mechanism
@@ -329,24 +353,29 @@ Internal / Sesuai kebutuhan proyek.
 ## 🆘 Troubleshooting
 
 ### InsightFace tidak terinstall
+
 ```bash
 pip install insightface onnxruntime
 ```
 
 ### Model tidak terdownload
+
 Model InsightFace akan otomatis download saat pertama kali dijalankan. Pastikan koneksi internet tersedia.
 
 ### Error "No module named 'cv2'"
+
 ```bash
 pip install opencv-contrib-python
 ```
 
 ### LBPH fallback tidak bekerja
+
 ```bash
 pip install opencv-contrib-python
 ```
 
 ### Database error
+
 ```bash
 rm database.db
 rm model/embeddings.db
