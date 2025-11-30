@@ -7,3 +7,4 @@ insightface>=0.7.0,<0.8
 onnxruntime-gpu==1.16.3
 onnx
 protobuf
+pytesseract

@@ -1,38 +1,49 @@
-# WEB-FACE - Sistem Deteksi dan Pengenalan Wajah Akurat
+# WEB-FACE - Sistem Cerdas Registrasi & Verifikasi Wajah
 
-Aplikasi web Flask untuk registrasi dan verifikasi wajah pasien rumah sakit. Menggunakan **InsightFace (RetinaFace + ArcFace)** untuk deteksi dan pengenalan wajah dengan akurasi tinggi, serta mendukung akselerasi GPU NVIDIA.
+Aplikasi web Flask untuk registrasi pasien menggunakan **Scan E-KTP (OCR)** dan verifikasi identitas menggunakan **Pengenalan Wajah (InsightFace)**. Aplikasi ini dirancang untuk akurasi tinggi dan performa cepat dengan dukungan akselerasi GPU NVIDIA.
 
-## 🚀 Fitur Utama
+## 🚀 Fitur Unggulan
 
-- **Deteksi Wajah Akurat**: RetinaFace untuk deteksi real-time yang presisi.
-- **Pengenalan Wajah Modern**: ArcFace embedding (512 dimensi) untuk membedakan identitas.
-- **Multi-Frame Voting**: Meningkatkan akurasi dengan menganalisis multiple frame sebelum mengambil keputusan.
-- **Face Alignment**: Normalisasi posisi wajah (5-point landmarks) untuk hasil optimal.
-- **Auto-Fallback**: Otomatis beralih ke metode ringan (LBPH) jika model berat gagal dimuat.
-- **GPU Acceleration**: Mendukung NVIDIA RTX/GTX untuk performa super cepat (Real-time).
+### 1. 📷 Smart Face Recognition
+
+- **Engine:** InsightFace (RetinaFace + ArcFace) dengan akselerasi GPU.
+- **Auto-Scan:** Mendeteksi wajah secara otomatis tanpa perlu menekan tombol.
+- **Anti-Spoofing:** Menggunakan _Multi-Frame Voting_ untuk meningkatkan akurasi dan mencegah pemalsuan.
+- **Face Alignment:** Normalisasi posisi wajah (5-point landmarks) untuk hasil pengenalan yang optimal.
+- **Fallback:** Otomatis pindah ke mode CPU (LBPH) jika model berat gagal dimuat atau GPU tidak tersedia.
+
+### 2. 🆔 Scan E-KTP Otomatis (OCR)
+
+- **Auto-Capture:** Kamera otomatis memotret saat mendeteksi bentuk kartu KTP.
+- **Smart Parsing:** Membaca NIK, Nama, Tanggal Lahir, dan Alamat dengan cerdas menggunakan regex kontekstual.
+- **Auto-Correction:** Memperbaiki typo umum OCR (misal: `7005` menjadi `2005`, `DUKLUIN` menjadi `DUKUN`).
+- **Data Extraction:** Otomatis mengisi form registrasi dari data hasil scan KTP.
+
+---
 
 ## 📁 Struktur Direktori
 
 ```text
 WEB-FACE/
-├── app.py                    # Aplikasi Flask utama
+├── app.py                    # Aplikasi Flask utama (Backend Logic)
 ├── face_engine.py            # Engine deteksi dan pengenalan wajah
-├── requirements.txt          # Dependensi Python (Versi Stabil)
+├── requirements.txt          # Daftar Dependensi Python (Versi Stabil)
 ├── database.db               # Database SQLite (auto-generated)
 ├── data/
-│   └── database_wajah/       # Penyimpanan gambar wajah (LBPH/Backup)
+│   ├── database_wajah/       # Penyimpanan foto wajah user (Privasi)
+│   └── database_ktp/         # Penyimpanan foto KTP user (Privasi)
 ├── model/
-│   ├── embeddings.db         # Database embedding (InsightFace)
+│   ├── embeddings.db         # Database embedding wajah (InsightFace)
 │   └── buffalo_l/            # Model InsightFace (auto-download)
 ├── templates/
 │   ├── user.html             # Interface pengguna (Kiosk)
-│   ├── admin_login.html      # Login Admin
+│   ├── admin_login.html      # Halaman Login Admin
 │   └── admin_dashboard.html  # Dashboard Admin
 ├── static/js/
-│   ├── user.js
-│   └── admin.js
+│   ├── user.js               # Logic Frontend User
+│   └── admin.js              # Logic Frontend Admin
 ├── README.md                 # Dokumentasi utama
-└── README_INSIGHTFACE.md     # Dokumentasi teknis InsightFace
+└── README_INSIGHTFACE.md     # Dokumentasi teknis mendalam InsightFace
 ```
 
 ## 🛠️ Instalasi Cepat (CPU Only)
@@ -175,7 +186,20 @@ python test_recognition_workflow.py
 
 ## 📝 Changelog
 
-## v2.1.0 (Current)
+### v2.2.0 (Final Stable Release) - _Current_
+
+**New Features (Fitur Baru):**
+
+- **🆔 Smart KTP OCR:** Sistem scan E-KTP otomatis menggunakan Tesseract dengan logika cerdas:
+  - **Auto-Capture:** Mendeteksi bentuk kartu KTP dan mengambil foto otomatis saat stabil.
+  - **Auto-Rotate:** Otomatis memutar foto vertikal menjadi horizontal agar terbaca.
+  - **Smart Parsing:** Menggunakan _Contextual Regex_ untuk membaca NIK, Nama, dan Alamat baris-per-baris (lebih akurat daripada scan global).
+  - **Auto-Correction:** Memperbaiki typo umum OCR (misal: Tahun `7005` -> `2005`, Nama `I7ZAT` -> `IZZAT`, `DUKLUIN` -> `DUKUN`).
+  - **Noise Filtering:** Membersihkan sampah teks di alamat (menghapus kata "LAKI", "GOL DARAH" yang bocor).
+- **🌗 Dark Mode UI:** Tampilan _Light/Dark Mode_ yang bisa di-switch pada halaman User dan Admin Dashboard.
+- **🖥️ Hardware Monitor:** Indikator Real-time di Dashboard Admin untuk memantau apakah sistem berjalan menggunakan **GPU (NVIDIA)** atau **CPU**.
+
+## v2.1.0
 
 Fix: Kompatibilitas penuh dengan CUDA 11.8 & cuDNN 8.
 
