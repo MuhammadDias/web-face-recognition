@@ -1076,5 +1076,32 @@ def api_queue_set(): # RENAMED
     with db_connect() as conn: conn.execute("UPDATE queues SET next_number=? WHERE poli_name=?", (n, p))
     return jsonify(ok=True)
 
+# =======================================================
+# TAMBAHAN KHUSUS: API UNTUK CATAT LOG SPOOFING
+# =======================================================
+@app.post("/api/log_spoof")
+def api_log_spoof():
+    try:
+        # Coba ambil IP asli user
+        if request.headers.getlist("X-Forwarded-For"):
+            ip_address = request.headers.getlist("X-Forwarded-For")[0]
+        else:
+            ip_address = request.remote_addr
+            
+        log_scan_result(
+            status="failed",
+            nik="-",
+            name="Spoof Detected", # Muncul di tabel Log
+            dob="-",
+            address="-",
+            age="-",
+            message="SECURITY ALERT: Terdeteksi upaya spoofing (Wajah Diam/Foto HP)."
+        )
+        return jsonify(ok=True, msg="Spoof logged")
+    except Exception as e:
+        logger.error(f"Failed to log spoof: {e}")
+        return jsonify(ok=False, msg=str(e))
+
+
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=5000, debug=True)
